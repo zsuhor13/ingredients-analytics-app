@@ -136,8 +136,9 @@ function analyse(message: string) {
     }
 
     console.log(allIngredients);
+    return allIngredients;
 }
 
 
-export {analyse}
+export {analyse, Ingredient}
 // delingredienser, og hva skjer når delingrediens har prosent... 
