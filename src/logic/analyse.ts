@@ -11,23 +11,24 @@ class Ingredient implements IIngredient {
     percentRange?: DoubleRange;
     exactPercent?: number;
     partialIngredients?: Ingredient[];
-    
-    constructor(s: string) {
-        this.name = s;
+
+    constructor(name: string, percent?: string) {
+        this.name = name;
+        this.exactPercent = percent ? parseInt(percent) : undefined;
     }
 
     setPercent(exact: number) {
         this.exactPercent = exact;
-        this.percentRange = { min:exact, max:exact};
+        this.percentRange = { min: exact, max: exact };
     }
 
     setPercentRange(min?: number, max?: number) {
-        this.percentRange = { min:min, max:max};
+        this.percentRange = { min: min, max: max };
     }
 
     setPercentMin(min: number) {
         if (this.percentRange === undefined) {
-            this.percentRange = {min:min, max:undefined};
+            this.percentRange = { min: min, max: undefined };
         } else {
             this.percentRange.min = min;
         }
@@ -39,6 +40,18 @@ class Ingredient implements IIngredient {
         }
         this.partialIngredients.push(pi);
     }
+
+    getPercentage() {
+        if (this.exactPercent) {
+            return this.exactPercent;
+        } else {
+            return ((this.percentRange?.max ?? 0) + (this.percentRange?.min ?? 0)) / 2;
+        }
+    }
+
+    getPartialIngredients() {
+        return this.partialIngredients;
+    }
 }
 
 function parseNameAndProsent(s: string) {
@@ -48,7 +61,7 @@ function parseNameAndProsent(s: string) {
         let matches = s.match(/^(.+)\s+(\d+)\s*%$/);
         console.log(matches);
         if (matches?.length === 3)
-            return { name: matches[1].trim(), percent: matches[2]} ;
+            return { name: matches[1].trim(), percent: matches[2] };
         else
             return { name: s };
     }
@@ -64,7 +77,7 @@ function analyse(message: string) {
 
     for (let part of parts) {
         if (inBracket) {
-            let closingIdx = part.indexOf("]");        
+            let closingIdx = part.indexOf("]");
             let name = part.split("]")[0].trim();
             let newIngredient = new Ingredient(name);
             //console.log("appending "+ newIngredient+" to last ingredient group");
@@ -73,7 +86,7 @@ function analyse(message: string) {
                 //has closing bracket
                 inBracket = false;
                 allIngredients.push(latestIngredient);
-            } 
+            }
         } else {
             let openingBracketIdx = part.indexOf("[");
             let partSplit = part.split("[");
@@ -86,7 +99,7 @@ function analyse(message: string) {
                 lastHighestExactPercentage = p;
                 latestIngredient.setPercent(p);
 
-                for (let pi = allIngredients.length - 1; pi >= 0; pi --) {
+                for (let pi = allIngredients.length - 1; pi >= 0; pi--) {
                     if (allIngredients[pi].exactPercent) {
                         // previous had exact percent, no need to propagate further
                         break;
@@ -100,9 +113,10 @@ function analyse(message: string) {
             if (openingBracketIdx !== -1) {
                 //has opening bracket
                 inBracket = true;
-                latestIngredient.addPartialIngredient( new Ingredient(nameAndPercent.name) );
+                let firstPartial = parseNameAndProsent(partSplit[1].trim());
+                latestIngredient.addPartialIngredient(new Ingredient(firstPartial.name, firstPartial.percent));
             } else {
-                allIngredients.push( latestIngredient );
+                allIngredients.push(latestIngredient);
             }
         }
     }
@@ -115,12 +129,12 @@ function analyse(message: string) {
         if (ing.exactPercent === undefined) {
             let index = parseInt(ii);
             let max = undefinedPercentage;
-            if (index-1 >=0) {
-                max = (allIngredients[index-1].exactPercent ?? ing.percentRange?.max) ?? undefinedPercentage;
-            } 
+            if (index - 1 >= 0) {
+                max = (allIngredients[index - 1].exactPercent ?? ing.percentRange?.max) ?? undefinedPercentage;
+            }
             let min = 0
-            if (index+1<allIngredients.length) {
-                min = (allIngredients[index+1].exactPercent ?? allIngredients[index+1].percentRange?.min) ?? 0
+            if (index + 1 < allIngredients.length) {
+                min = (allIngredients[index + 1].exactPercent ?? allIngredients[index + 1].percentRange?.min) ?? 0
             }
             ing.setPercentRange(min, max);
         }
@@ -140,5 +154,5 @@ function analyse(message: string) {
 }
 
 
-export {analyse, Ingredient}
+export { analyse, Ingredient }
 // delingredienser, og hva skjer når delingrediens har prosent... 

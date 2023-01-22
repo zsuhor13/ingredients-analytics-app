@@ -19,7 +19,7 @@ export const Ingredients: React.FC = () => {
     return (
         <div>
             <form onSubmit={handleSubmit}>
-                <textarea value={text} onChange={handleChange}></textarea>                
+                <textarea value={text} onChange={handleChange}></textarea>
                 <button onClick={() => setText(example)}>Paste example</button>
                 <button type="submit" disabled={hasUnprocessedText}>Analyse</button>
             </form>
@@ -35,9 +35,18 @@ interface IngredientsListProps {
 const IngredientsList: React.FC<IngredientsListProps> = ({ ingredients }) => {
     return (
         <ol>{
-            ingredients.map(ingredient => {
+            ingredients.map((ingredient, idx) => {
                 return (
-                    <li>{ingredient.name}</li>
+                    <li style={{ fontSize: ingredient.getPercentage()*5 }} key={idx}>{ingredient.name}
+                        {((ingredient.getPartialIngredients()?.length ?? 0) > 0) ? <ol>
+                            {
+                                (ingredient.getPartialIngredients() ?? []).map((pi, pii) => {
+                                    return (<li key={pi + "." + pii}>{pi.name}</li>);
+                                })
+                            }
+                        </ol> : null}
+
+                    </li>
                 );
             }
             )}</ol>
