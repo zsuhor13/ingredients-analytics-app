@@ -5,23 +5,25 @@ const example = 'Vann, tomatpure 10 %, tomater 10 %, Fløte, rapsolje, modifiser
 
 export const Ingredients: React.FC = () => {
     const [text, setText] = useState<string>('');
+    const [analysedText, setAnalysedText] = useState<string>('');
     const [ingredientList, setIngredientList] = useState<Ingredient[]>([]);
 
     const handleSubmit = (event: React.SyntheticEvent) => {
         event.preventDefault();
+        setAnalysedText(text);
         setIngredientList(analyse(text));
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value);
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {setText(e.target.value);}
 
-    const hasUnprocessedText = false; // TODO  Only active when current text has not been analysed
+    const hasUnprocessedText = analysedText !== text; // TODO  Only active when current text has not been analysed
 
     return (
         <div>
             <form onSubmit={handleSubmit}>
                 <textarea value={text} onChange={handleChange}></textarea>
                 <button onClick={() => setText(example)}>Paste example</button>
-                <button type="submit" disabled={hasUnprocessedText}>Analyse</button>
+                <button type="submit" disabled={!hasUnprocessedText}>Analyse</button>
             </form>
             <IngredientsList ingredients={ingredientList} />
         </div>
@@ -34,10 +36,12 @@ interface IngredientsListProps {
 
 const IngredientsList: React.FC<IngredientsListProps> = ({ ingredients }) => {
     return (
-        <ol>{
+        <ol className="ingredientList">{
             ingredients.map((ingredient, idx) => {
+                let hasExactPercent = ingredient.exactPercent !== undefined;
+                let numberValue = hasExactPercent ? ingredient.exactPercent : `[${ingredient.percentRange?.min}, ${ingredient.percentRange?.max}]`;
                 return (
-                    <li style={{ fontSize: ingredient.getPercentage()*5 }} key={idx}>{ingredient.name}
+                    <li style={{ fontSize: ingredient.getPercentage() }} className={ hasExactPercent ? "exact" : "approximate" } key={idx}>{ingredient.name} {numberValue}
                         {((ingredient.getPartialIngredients()?.length ?? 0) > 0) ? <ol>
                             {
                                 (ingredient.getPartialIngredients() ?? []).map((pi, pii) => {

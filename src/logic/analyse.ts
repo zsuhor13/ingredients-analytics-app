@@ -12,9 +12,9 @@ class Ingredient implements IIngredient {
     exactPercent?: number;
     partialIngredients?: Ingredient[];
 
-    constructor(name: string, percent?: string) {
+    constructor(name: string, percent?: number) {
         this.name = name;
-        this.exactPercent = percent ? parseInt(percent) : undefined;
+        this.exactPercent = percent;
     }
 
     setPercent(exact: number) {
@@ -58,17 +58,29 @@ function parseNameAndProsent(s: string) {
     if (s.indexOf("%") === -1) {
         return { name: s };
     } else {
-        let matches = s.match(/^(.+)\s+(\d+)\s*%$/);
-        console.log(matches);
-        if (matches?.length === 3)
-            return { name: matches[1].trim(), percent: matches[2] };
-        else
-            return { name: s };
+        // Procent after
+        let matches = s.match(/^(.+)\s+(\d+([.,]\d+)?)\s*%$/);
+        //console.log(s + " => " + matches);
+        if (matches && (matches.length ?? 0) > 2)
+            return { name: matches[1].trim(), percent: parseFloat(matches[2].replace(",", ".")) };
+        else {
+            // Procent before
+            matches = s.match(/^(\d+([.,]\d+)?)\s*%\s+(.+)$/);
+            console.log(matches);
+            if (matches && (matches.length ?? 0) > 2)
+                return { name: matches[matches.length - 1].trim(), percent: parseFloat(matches[1].replace(",", ".")) };
+            else
+                return { name: s };
+        }
     }
 }
 
 function analyse(message: string) {
-    let parts = message.trim().split(",");
+    // Clean before splitting by putting a space after every comma that is not part of a number
+    let cleaned_msg = message.trim().replace(/(\D),(\D)/, "$1, $2");
+    console.log(cleaned_msg);
+
+    let parts = cleaned_msg.split(/, /);
     let inBracket = false
     let allIngredients: Ingredient[] = [];
     let latestIngredient: Ingredient = new Ingredient('');
@@ -76,6 +88,7 @@ function analyse(message: string) {
     let lastHighestExactPercentage = 100;
 
     for (let part of parts) {
+        part = part.trim();
         if (inBracket) {
             let closingIdx = part.indexOf("]");
             let name = part.split("]")[0].trim();
@@ -94,7 +107,7 @@ function analyse(message: string) {
             latestIngredient = new Ingredient(nameAndPercent.name);
             if (nameAndPercent.percent) {
                 // Has exact percent
-                let p = parseInt(nameAndPercent.percent);
+                let p = nameAndPercent.percent;
                 exactPercentDefined += p;
                 lastHighestExactPercentage = p;
                 latestIngredient.setPercent(p);
@@ -130,7 +143,16 @@ function analyse(message: string) {
             let index = parseInt(ii);
             let max = undefinedPercentage;
             if (index - 1 >= 0) {
-                max = (allIngredients[index - 1].exactPercent ?? ing.percentRange?.max) ?? undefinedPercentage;
+                let possibleMax: number[] = [];
+                [allIngredients[index - 1].exactPercent, ing.percentRange?.max, allIngredients[index - 1].percentRange?.max, undefinedPercentage]
+                    .forEach(n => {
+                        if (n !== undefined)
+                            possibleMax.push(n)
+                    });
+                    console.log("max")
+                    console.log(ing);
+                    console.log(possibleMax);
+                max = Math.min(...possibleMax);
             }
             let min = 0
             if (index + 1 < allIngredients.length) {

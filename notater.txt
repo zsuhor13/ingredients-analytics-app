@@ -1,0 +1,13 @@
+Font size - have a mix / man rem, then divide the sizes based on avg. weight
+
+WIP max is bad on second element when first one has no percentage - now maybe fixed
+
+TODO how to show difference between those that are in same unknownpercentage but we know one is bigger than the other?
+
+Helmelk, kremfløte, 10 % sukker, modifiasaert stissvaelse (mais), stabilisator (johannesbrødkjernemel, guarkjernemel, karragenan), aroma, fargestoff (karotener)
+and in this example, helmelk wil be 10-90
+but more correct would be 10-80, because we know kremfløte is at least 10. Same for helmelk.
+
+100 - (exact + SUm of all the minimums where no exact percentage is known) === undefinedPercentage
+but this means we have to iterate through the list one more time
+is there a better way?
