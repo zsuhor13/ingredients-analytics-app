@@ -11,3 +11,10 @@ but more correct would be 10-80, because we know kremfløte is at least 10. Same
 100 - (exact + SUm of all the minimums where no exact percentage is known) === undefinedPercentage
 but this means we have to iterate through the list one more time
 is there a better way?
+
+Yes analyse v2
+the intervals look  good
+minimum on the interval is good
+can set maybe maximum as well from previous min when available
+
+afterwards the summing and the resetting of the ingredient max mins. when it works the initial minmax on ingredient level is unnecessary

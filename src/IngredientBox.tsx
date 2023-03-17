@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Ingredient, analyse } from "./logic/analyse";
+import { Ingredient, analyse } from "./logic/analyse copy";
 
 const example = 'Vann, tomatpure 10 %, tomater 10 %, Fløte, rapsolje, modifisert stivelse, sukker, mascarpone [Fløte, melk, sitronsyre e330], estragoneddik, hvetemel, salt, naturlig aroma, krydder [laurbær, rosmarin, gurkemeie], stabilisator e415 3%, løkpulver, krydderekstrakt, sitronsyre e330.';
 
