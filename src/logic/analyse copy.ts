@@ -125,6 +125,7 @@ function analyse(message: string) {
                 //has closing bracket
                 inBracket = false;
                 allIngredients.push(latestIngredient);
+                latestInterval.addElement(latestIngredient);
             }
         } else {
             let openingBracketIdx = part.indexOf("[");
@@ -158,6 +159,7 @@ function analyse(message: string) {
                 inBracket = true;
                 let firstPartial = parseNameAndProsent(partSplit[1].trim());
                 latestIngredient.addPartialIngredient(new Ingredient(firstPartial.name, firstPartial.percent));
+                // TODO if it also has closing than it is final feks , modifiasaert stissvaelse (mais),
             }
         }
     }
@@ -166,6 +168,8 @@ function analyse(message: string) {
     }
 
     console.log(intervalList);
+
+    // TODO instead of this go through the interval list to make the ingredient list
 
     // Go through ingredients and fill out 
     let undefinedPercentage = 100 - exactPercentDefined; // this is the max available for those with unknown at the start
